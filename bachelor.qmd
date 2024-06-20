@@ -1,0 +1,55 @@
+---
+title: "Quarto"
+author: "Harshil K"
+format: html
+execute: 
+  message: false
+  echo: false
+---
+
+
+```{r}
+install.packages("tidycensus")
+install.packages("dplyr")
+install.packages("sf")
+
+library(tidycensus)
+library(dplyr)
+library(sf)
+
+variables <- c(male_bachelors = "B15002_015", female_bachelors = "B15002_032")
+
+
+la_bachelors_data <- get_acs(
+  geography = "tract",
+  variables = variables,
+  state = "CA",
+  county = "Los Angeles",
+  year = 2021,
+  survey = "acs5",
+  geometry = TRUE  # Set to TRUE if you want spatial data
+)
+
+total_pop_25_over <- get_acs(
+  geography = "tract",
+  variables = c(total_pop_25_over = "B15002_001"),
+  state = "CA",
+  county = "Los Angeles",
+  year = 2021,
+  survey = "acs5",
+  geometry = FALSE
+)
+
+la_bachelors_data <- la_bachelors_data %>%
+  group_by(GEOID) %>%
+  summarize(bachelors_total = sum(estimate))
+la_data <- la_bachelors_data %>%
+  left_join(total_pop_25_over, by = "GEOID") %>%
+  mutate(percentage_bachelors = (bachelors_total / estimate) * 100) %>%
+  select(GEOID, NAME, percentage_bachelors, geometry)
+
+print(la_data)
+
+write.csv(st_dro
+```
+
